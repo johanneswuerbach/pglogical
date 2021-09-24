@@ -31,11 +31,7 @@ OBJS = pglogical_apply.o pglogical_conflict.o pglogical_manager.o \
 
 SCRIPTS_built = pglogical_create_subscriber
 
-REGRESS = preseed infofuncs init_fail init preseed_check basic extended conflict_secondary_unique \
-		  toasted replication_set add_table matview bidirectional primary_key \
-		  interfaces foreign_key functions copy triggers parallel row_filter \
-		  row_filter_sampling att_list column_filter apply_delay multiple_upstreams \
-		  node_origin_cascade drop
+REGRESS = preseed infofuncs init_fail init preseed_check not_null_defaults
 
 EXTRA_CLEAN += compat94/pglogical_compat.o compat95/pglogical_compat.o \
 			   compat96/pglogical_compat.o compat10/pglogical_compat.o \
@@ -207,7 +203,7 @@ set -e -u -x
 # If you don't want leak checking, use --leak-check=no
 #
 # When just doing leak checking and not looking for detailed memory error reports you don't need:
-# 	--track-origins=yes --read-var-info=yes --malloc-fill=8f --free-fill=9f 
+# 	--track-origins=yes --read-var-info=yes --malloc-fill=8f --free-fill=9f
 #
 SUPP=$(POSTGRES_SRC)/src/tools/valgrind.supp
 
@@ -244,3 +240,7 @@ valgrind-check:
 	chmod a+x valgrind/postgres
 	PATH=./valgrind/:$(PATH) $(MAKE) check
 	rm valgrind/postgres
+
+container:
+	docker build -t pglogical .
+	docker run --rm -it -v $(PWD):/pglogical -w /pglogical pglogical
